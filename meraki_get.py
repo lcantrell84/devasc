@@ -5,7 +5,7 @@ def meraki_get(resource):
     Take a specific REST resource and return the JSON-romatted body text.
     """
     # Basic veriables needed
-    api_path = "https://dashboard.meraki.com/api/v0"
+    api_path = "https://api.meraki.com/api/v1"
     headers = {
         "Content": "application/json",
         "X-Cisco-Meraki-API-Key": "6bec40cf957de430a6f1f2baa056b99a4fac9ea0"
@@ -13,7 +13,7 @@ def meraki_get(resource):
 
     # Assemble the complete URL by appending the resource to the API Path.
     # Issue an HTTP GET using proper authentication headers.
-    get_resp = requests.get(f"{api_path}/{resource})", headers=headers)
+    get_resp = requests.get(f"{api_path}/{resource}", headers=headers)
 
     # IF status code >= 400, raise HTTPError.
     get_resp.raise_for_status()
@@ -39,7 +39,7 @@ def main():
     devnet_id = 0
     for org in orgs:
         print(f"ID: {org['id']:<6}   Name:  {org['name']}")
-        if "devnet" in org["name"].lower():
+        if "devnetassoc" in org["name"].lower():
             devnet_id = org["id"]
     
     # If the DevNet ID has been defined
@@ -59,12 +59,12 @@ def main():
         # Once found, store that network ID for later
         devnet_network = ""
         for network in networks:
-            print(f"Network ID: {networkd['id']}   Name:  {network['name']}")
-            if "devnet"in network["name"].lower():
+            print(f"Network ID: {network['id']}   Name: {network['name']}")
+            if "devnetassoc" in network["name"].lower():
                 devnet_network = network["id"]
 
         # If we found the DevNet network ...
-        if debnet_network:
+        if devnet_network:
             # Get the devices from the DevNet network
             devices = meraki_get(f"networks/{devnet_network}/devices")
 
@@ -76,7 +76,7 @@ def main():
 
             # Print the hardware model and LAN-side IP address on each device
             for device in devices:
-                print(f"Model: {device['model']:<8}    IP:   {device['lanIp']}")
+                print(f"Model: {device['model']:<8}    IP: {device['lanIp']}")
 
 
 if __name__ == "__main__":
